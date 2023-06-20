@@ -62,6 +62,12 @@ namespace LT_TradeAgent
         [SaveableField(5)]
         public List<TradeItemData> TradeItemsDataList;
 
+        [SaveableField(6)]
+        public int FeePercent;
+
+        [SaveableField(7)]
+        public bool SendsTradeInfo;
+
         public LTTATradeData(Hero hero)
         {
             this.Hero = hero;
@@ -70,7 +76,14 @@ namespace LT_TradeAgent
             this.Stash = new ItemRoster();
 
             this.TradeItemsDataList = new List<TradeItemData>();
+
+            this.FeePercent = 10; 
+            this.SendsTradeInfo = false;
+
         }
+
+        // count items in stash
+        //int itemCount = tradeData.Stash.GetItemNumber(ware.item);
 
         public int GetTotalWaresCountInStash()
         {
@@ -106,6 +119,41 @@ namespace LT_TradeAgent
 
             return true;
         }
+
+        public bool ChangeWarePrice(ItemObject item, int newPrice, bool maxPrice = true)
+        {
+            if (item == null) return false;
+            if (maxPrice && newPrice < -1) newPrice = -1; // unlimited
+            if (!maxPrice && newPrice < 0) newPrice = 0;
+            if (this.TradeItemsDataList.Count == 0) return false ;
+
+            foreach (TradeItemData ware in this.TradeItemsDataList)
+            {
+                if (item == ware.item)
+                {
+                    if (maxPrice) ware.maxPrice = newPrice; else ware.minPrice = newPrice;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public int GetWarePrice(ItemObject item, bool maxPrice = true)
+        {
+            if (item == null) return -1;
+            if (this.TradeItemsDataList.Count == 0) return -1;
+
+            foreach (TradeItemData ware in this.TradeItemsDataList)
+            {
+                if (item == ware.item)
+                {
+                    if (maxPrice) return ware.maxPrice;
+                    else return ware.minPrice;
+                }
+            }
+            return -1;
+        }
+
     }
 
 

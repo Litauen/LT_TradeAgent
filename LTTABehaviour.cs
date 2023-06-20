@@ -13,8 +13,6 @@ namespace LT_TradeAgent
 
         public bool BannerKingsActive = false;
 
-        public const int TAPercent = 10;
-
         readonly bool _debug = false;
 
         public LTTABehaviour()

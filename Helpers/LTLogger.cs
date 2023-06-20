@@ -9,7 +9,7 @@ namespace LT.Logger
     public static class LTLogger
     {
    
-        public const string ModuleId = "LT_Education";
+        public const string ModuleId = "LT_TradeAgent";
         private static readonly string LOG_PATH = @"..\\..\\Modules\\" + ModuleId + "\\logs\\";
         private static readonly string ERROR_FILE = LOG_PATH + "error.log";
         private static readonly string DEBUG_FILE = LOG_PATH + "debug.log";
@@ -76,25 +76,26 @@ namespace LT.Logger
         public static void IMGreen(string message)
         {
             IM(message, "#42FF00FF");
-            //Logger.DisplayColorInfoMessage(message, Color.ConvertStringToColor("#42FF00FF"), logToFile);
+        }
+
+        public static void IMTAGreen(string message)
+        {
+            IM(message, "#85BB65FF");
         }
 
         public static void IMRed(string message)
         {
             IM(message, "#FF0042FF");
-            //Logger.DisplayColorInfoMessage(message, Color.ConvertStringToColor("#FF0042FF"), logToFile);
         }
 
         public static void IMBlue(string message)
         {
             IM(message, "#4242FFFF");
-            //Logger.DisplayColorInfoMessage(message, Color.ConvertStringToColor("#4242FFFF"), logToFile);
         }
 
         public static void IMGrey(string message)
         {
             IM(message, "#AAAAAAFF");
-            //Logger.DisplayColorInfoMessage(message, Color.ConvertStringToColor("#AAAAAAFF"), logToFile);
         }
         private static void DisplayColorInfoMessage(string message, Color messageColor, bool logToFile = false)
         {

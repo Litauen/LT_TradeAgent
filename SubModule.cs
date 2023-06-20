@@ -1,5 +1,5 @@
-﻿using LT.Logger;
-using LT_Education;
+﻿using LT.Helpers;
+using LT.Logger;
 using System;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
@@ -43,7 +43,7 @@ namespace LT_TradeAgent
 
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
         {
-            LTLogger.IMGrey(LHelpers.GetModName() + " Loaded");
+            LTLogger.IMGrey(LTHelpers.GetModName() + " Loaded");
         }
 
         public override void OnGameInitializationFinished(Game game)
