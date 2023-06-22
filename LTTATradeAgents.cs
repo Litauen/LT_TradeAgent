@@ -366,5 +366,43 @@ namespace LT_TradeAgent
         }
 
 
+        // fee percent notable charges for his services
+        int GetFeePercent(Hero hero)
+        {
+            int feePercent = 20;
+
+            if (hero.IsMerchant) feePercent = 8;          // merchant just doing his work
+            else if (hero.IsArtisan) feePercent = 14;     // artisan is busy with his artisan stuff
+            else if (hero.IsGangLeader) feePercent = 20;  // gang leader hires somebody else to trade for you, he's just a middle-man
+
+            feePercent += (int)(hero.Power / 100);
+
+            return feePercent;
+        }
+
+        // what relation is necessary to hire some notable
+        int GetNecessaryRelationForHire(Hero notable)
+        {
+            int relation = -5; //if (notable.IsGangLeader)  // does deals with everybody he doesn't hate
+
+            if (notable.IsArtisan) relation = 10;           // he is busy doing his artisan stuff
+            else if (notable.IsMerchant) relation = 20;     // he is busy by his own trade
+
+            relation += (int)(notable.Power / 100 * 3);     // more powerfull - needs more relation, powerfull cares less about you
+
+            return relation;
+        }
+
+        // how many Trade Agents player can hire
+        int GetTALimit()
+        {
+            return Clan.PlayerClan.Tier * 3 + 1;
+        }
+
+        bool CanHaveMoreTA()
+        {
+            if (TradeAgentsData.Count < GetTALimit()) return true;
+            return false;
+        }
     }
 }

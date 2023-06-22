@@ -28,8 +28,8 @@ namespace LT_TradeAgent
         public int spentTotal;     // how much spent gold for these items from the start of the contract
 
         [SaveableField(7)]
-        public int boughTotal;       // how many items bought from the start of the contract
-    
+        public int boughTotal;     // how many items bought from the start of the contract
+
         public TradeItemData(ItemObject item) 
         { 
             this.item = item;
@@ -67,6 +67,12 @@ namespace LT_TradeAgent
 
         [SaveableField(7)]
         public bool SendsTradeInfo;
+
+        [SaveableField(8)]
+        public CampaignTime LastTradeExperienceGainFromInteraction;
+
+        [SaveableField(9)]
+        public CampaignTime LastRelationGainFromInteraction;
 
         public LTTATradeData(Hero hero)
         {

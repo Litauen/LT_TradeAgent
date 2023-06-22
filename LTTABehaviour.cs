@@ -1,6 +1,11 @@
-﻿using System;
+﻿using LT.Logger;
+using System;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.GameMenus;
+using TaleWorlds.Core;
+using TaleWorlds.Diamond;
+using TaleWorlds.Library;
 
 namespace LT_TradeAgent
 {
@@ -24,17 +29,24 @@ namespace LT_TradeAgent
         {
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, new Action<CampaignGameStarter>(this.OnSessionLaunched));
 
+            CampaignEvents.OnNewGameCreatedEvent.AddNonSerializedListener(this, new Action<CampaignGameStarter>(this.OnNewGameCreated));
+
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, HourlyTickEvent);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, DailyTickEvent);
             CampaignEvents.WeeklyTickEvent.AddNonSerializedListener(this, WeeklyTickEvent);
+        }
+
+        private void OnNewGameCreated(CampaignGameStarter starter)
+        {
+            TradeAgentsData.Clear();
         }
 
 
         private void OnSessionLaunched(CampaignGameStarter starter)
         {
             AddDialogs(starter);
-        }
 
+        }
 
         private void HourlyTickEvent()
         {

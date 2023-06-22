@@ -21,7 +21,7 @@ namespace LT_TradeAgent
 
             // hiring new Trade Agent
             starter.AddPlayerLine("lt_trade_agent_new", "hero_main_options", "lt_trade_agent_new_intro", "I want to hire you to trade for me when I am not around.", IsHeroPotentialTradeAgent, null, 100, null, null);
-            starter.AddDialogLine("lt_trade_agent_new", "lt_trade_agent_new_intro", "lt_trade_agent_new_intro2", "I think ... I can do that. For an additional {COMMISSION_PERC}% fee of course. I have connections in {TRADE_SETTLEMENTS}{TOWN_NAME}. [ib:confident3][if:convo_excited]", null, null, 100, null);
+            starter.AddDialogLine("lt_trade_agent_new", "lt_trade_agent_new_intro", "lt_trade_agent_new_intro2", "{HIRE_RESPONSE}[ib:confident3][if:convo_excited]", null, null, 100, null);
 
             starter.AddPlayerLine("lt_trade_agent_new", "lt_trade_agent_new_intro2", "lt_trade_agent_new_agreement", "Great. For the start of the contract take 10000{GOLD_ICON}.", null, SetNewTradeAgent, 100, (out TextObject explanation) =>
                 {
@@ -43,13 +43,14 @@ namespace LT_TradeAgent
 
             starter.AddDialogLine("lt_trade_agent_new", "lt_trade_agent_new_agreement", "lt_trade_agent_options", "Ok. I will proceed with our agreement. Anything else?", null, null, 100, null);
 
-            // another Trade Agent already active in the Town
-            starter.AddPlayerLine("lt_trade_agent_other", "hero_main_options", "lt_trade_agent_other", "Would you trade for me when I am not around?", IsTradeAgentPresentInTown, null, 100, null, null);
-            starter.AddDialogLine("lt_trade_agent_other", "lt_trade_agent_other", "hero_main_options", "As far as I know you already have agreement with {TA_NAME}.[ib:confident3][if:convo_mocking_revenge]", null, null, 100, null);
+            // another Trade Agent already active in the Town or wrong type notable
+            starter.AddPlayerLine("lt_trade_agent_other", "hero_main_options", "lt_trade_agent_other", "Would you trade for me when I am not around?", IsNotableNotSuitable, null, 100, null, null);
+            //starter.AddDialogLine("lt_trade_agent_other", "lt_trade_agent_other", "hero_main_options", "As far as I know you already have agreement with {TA_NAME}.[ib:confident3][if:convo_mocking_revenge]", null, null, 100, null);
+            starter.AddDialogLine("lt_trade_agent_other", "lt_trade_agent_other", "hero_main_options", "{REFUSE_RESPONSE}[ib:confident3][if:convo_mocking_revenge]", null, null, 100, null);
 
 
             // Trade Agent hired
-            starter.AddPlayerLine("lt_trade_agent", "hero_main_options", "lt_trade_agent_intro", "About our trade agreement...", IsHeroTownsTradeAgent, null, 100, null, null);
+            starter.AddPlayerLine("lt_trade_agent", "hero_main_options", "lt_trade_agent_intro", "About our trade agreement...", IsHeroTownsTradeAgent, TalkWithTAConsequence, 100, null, null);
             starter.AddDialogLine("lt_trade_agent", "lt_trade_agent_intro", "lt_trade_agent_options", "{TA_WARES} {ACTIVE_STATUS_INFO} [ib:normal2][if:convo_calm_friendly]", FormatTextVariables, null, 100, null);
 
             // options
@@ -106,7 +107,7 @@ namespace LT_TradeAgent
 
             // balance
             starter.AddDialogLine("lt_trade_agent", "lt_trade_agent_gold", "lt_trade_agent_gold2", "Let me check my records... Right, here it is... Current balance is {BALANCE}{GOLD_ICON} [ib:closed]", null, FormatBalance, 100, null);
-            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold2", "lt_trade_agent_gold3", "I want to increase the balance by 1000{GOLD_ICON}", null, () => IncreaseBalance(1000), 100, (out TextObject explanation) =>
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold2", "lt_trade_agent_gold3", "I want to increase the balance by 1000{GOLD_ICON}", null, () => ChangeBalance(1000), 100, (out TextObject explanation) =>
                 {
                     if (Hero.MainHero.Gold < 1000)
                     {
@@ -121,7 +122,7 @@ namespace LT_TradeAgent
                 }
 
             );
-            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold2", "lt_trade_agent_gold3", "I want to increase the balance by 10000{GOLD_ICON}", null, () => IncreaseBalance(10000), 100, (out TextObject explanation) =>
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold2", "lt_trade_agent_gold3", "I want to increase the balance by 10000{GOLD_ICON}", null, () => ChangeBalance(10000), 100, (out TextObject explanation) =>
                 {
                     if (Hero.MainHero.Gold < 10000)
                     {
@@ -135,7 +136,7 @@ namespace LT_TradeAgent
                     }
                 }
             );
-            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold2", "lt_trade_agent_gold3", "I want to increase the balance by 50000{GOLD_ICON}", null, () => IncreaseBalance(50000), 100, (out TextObject explanation) =>
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold2", "lt_trade_agent_gold3", "I want to increase the balance by 50000{GOLD_ICON}", null, () => ChangeBalance(50000), 100, (out TextObject explanation) =>
             {
                 if (Hero.MainHero.Gold < 50000)
                 {
@@ -149,7 +150,7 @@ namespace LT_TradeAgent
                 }
             }
             );
-            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold2", "lt_trade_agent_gold3", "I want to increase the balance by 100000{GOLD_ICON}", null, () => IncreaseBalance(100000), 100, (out TextObject explanation) =>
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold2", "lt_trade_agent_gold3", "I want to increase the balance by 100000{GOLD_ICON}", null, () => ChangeBalance(100000), 100, (out TextObject explanation) =>
             {
                 if (Hero.MainHero.Gold < 100000)
                 {
@@ -172,7 +173,7 @@ namespace LT_TradeAgent
 
             // gold back
             starter.AddDialogLine("lt_trade_agent", "lt_trade_agent_gold_back", "lt_trade_agent_gold_back2", "What's yours is yours. Current balance is {BALANCE}{GOLD_ICON}", null, null, 100, null);
-            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold_back2", "lt_trade_agent_gold_back", "I want to take 1000{GOLD_ICON}", null, () => IncreaseBalance(-1000), 100, (out TextObject explanation) =>
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold_back2", "lt_trade_agent_gold_back", "I want to take 1000{GOLD_ICON}", null, () => ChangeBalance(-1000), 100, (out TextObject explanation) =>
             {
                 if (GetTradeAgentGold(CharacterObject.OneToOneConversationCharacter.HeroObject) < 1000)
                 {
@@ -186,7 +187,7 @@ namespace LT_TradeAgent
                 }
             }
             );
-            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold_back2", "lt_trade_agent_gold_back", "I want to take 10000{GOLD_ICON}", null, () => IncreaseBalance(-10000), 100, (out TextObject explanation) =>
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold_back2", "lt_trade_agent_gold_back", "I want to take 10000{GOLD_ICON}", null, () => ChangeBalance(-10000), 100, (out TextObject explanation) =>
             {
                 if (GetTradeAgentGold(CharacterObject.OneToOneConversationCharacter.HeroObject) < 10000)
                 {
@@ -200,7 +201,7 @@ namespace LT_TradeAgent
                 }
             }
             );
-            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold_back2", "lt_trade_agent_gold_back", "I want to take 100000{GOLD_ICON}", null, () => IncreaseBalance(-100000), 100, (out TextObject explanation) =>
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold_back2", "lt_trade_agent_gold_back", "I want to take 100000{GOLD_ICON}", null, () => ChangeBalance(-100000), 100, (out TextObject explanation) =>
             {
                 if (GetTradeAgentGold(CharacterObject.OneToOneConversationCharacter.HeroObject) < 100000)
                 {
@@ -214,7 +215,7 @@ namespace LT_TradeAgent
                 }
             }
             );
-            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold_back2", "lt_trade_agent_gold", "I will take all the gold {BALANCE}{GOLD_ICON}", null, () => IncreaseBalance(GetTradeAgentGold(CharacterObject.OneToOneConversationCharacter.HeroObject) * (-1)), 100, (out TextObject explanation) =>
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold_back2", "lt_trade_agent_gold", "I will take all the gold {BALANCE}{GOLD_ICON}", null, () => ChangeBalance(GetTradeAgentGold(CharacterObject.OneToOneConversationCharacter.HeroObject) * (-1)), 100, (out TextObject explanation) =>
             {
                 if (GetTradeAgentGold(CharacterObject.OneToOneConversationCharacter.HeroObject) < 1)
                 {
@@ -250,9 +251,9 @@ namespace LT_TradeAgent
         }
 
 
-        private bool IsTradeAgentPresentInTown()
+        private bool IsNotableNotSuitable()
         {
-            if (IsHeroTownNotable() == false) return false;
+            if (!IsHeroTownNotable()) return false;
 
             Settlement town = Hero.MainHero.CurrentSettlement;
             if (town == null || town.IsTown == false || town.Notables == null) return false;
@@ -261,29 +262,110 @@ namespace LT_TradeAgent
             if (co == null || co.HeroObject == null) return false;
             Hero notable = co.HeroObject;
 
+            // wrong type of notable
+            if (!(notable.IsArtisan || notable.IsMerchant || notable.IsGangLeader))
+            {
+                MBTextManager.SetTextVariable("REFUSE_RESPONSE", "Do I look like I know anything about trading?", false);
+                return true;
+            }
+
             Hero? tradeAgent = GetSettlementsTradeAgent(town);
+            if (tradeAgent == notable) return false;  // TA is himself or not found in town
 
-            if (tradeAgent == null || tradeAgent == notable) return false;
+            // TA already present
+            if (tradeAgent != null) 
+            { 
+                MBTextManager.SetTextVariable("REFUSE_RESPONSE", "As far as I know you already have agreement with " + tradeAgent.Name.ToString(), false);
+                return true;
+            }
 
-            //LTLogger.IMTAGreen("IsTradeAgentPresentInTown");
+            // TA limit check 
+            if (!CanHaveMoreTA())
+            {
+                if (Clan.PlayerClan.Tier < 6) MBTextManager.SetTextVariable("REFUSE_RESPONSE", "I don't think you will be able to manage one more Trade Agent. Let's talk again after you will gain more renown.", false);
+                else MBTextManager.SetTextVariable("REFUSE_RESPONSE", "Most esteemed noble, I regretfully cannot accommodate your request at this time, for it grieves me to inform you that your noble self is preoccupied with weighty matters, and I humbly apologize for any inconvenience caused by my inability to fulfill your desires. (Trade Agent limit reached)", false);
+                return true;
+            }
 
-            MBTextManager.SetTextVariable("TA_NAME", tradeAgent.Name.ToString(), false);
-            return true;
+
+            // check relations
+            int relation = CharacterRelationManager.GetHeroRelation(Hero.MainHero, notable);
+            int necessaryRelation = GetNecessaryRelationForHire(notable);
+            //LTLogger.IMRed(relation + " " + necessaryRelation);
+            if (relation < necessaryRelation)
+            {
+                if (relation < -50) MBTextManager.SetTextVariable("REFUSE_RESPONSE", "Get lost or I'll gut you.", false);
+                else if (relation < -20) MBTextManager.SetTextVariable("REFUSE_RESPONSE", "I don't like you. Piss off.", false);
+                else if (relation < 0) MBTextManager.SetTextVariable("REFUSE_RESPONSE", "No, I don't think so.", false);
+                else MBTextManager.SetTextVariable("REFUSE_RESPONSE", "I don't know you well enough.", false);
+
+                return true;
+            }
+
+            return false;
         }
+
+
 
         private bool IsHeroPotentialTradeAgent()
         {          
+          
+            if (!IsHeroTownNotable()) return false;
 
-            if (IsHeroTownNotable() == false) return false;
+            Settlement town = Hero.MainHero.CurrentSettlement;
+            if (town == null || town.IsTown == false || town.Notables == null) return false;
 
             // does this town already has Trade Agent?
-            if (GetSettlementsTradeAgent(Hero.MainHero.CurrentSettlement) != null) return false;
+            if (GetSettlementsTradeAgent(town) != null) return false;
+
+            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            if (co == null || co.HeroObject == null) return false;
+            Hero notable = co.HeroObject;
+
+            if (!(notable.IsArtisan || notable.IsMerchant || notable.IsGangLeader)) return false;
 
             //LTLogger.IMTAGreen("IsHeroPotentialTradeAgent");
             //FormatTradeSettlementsTextVariables();
+            
+            // relation check
+            int relation = CharacterRelationManager.GetHeroRelation(Hero.MainHero, notable);
+            int necessaryRelation = GetNecessaryRelationForHire(notable);
+            if (relation < necessaryRelation) return false;
+
+
+            // TA limit check 
+            if (!CanHaveMoreTA()) return false;
+
+
+            string locations = "";
+            int villages = 0;
+            foreach (Village village in Hero.MainHero.CurrentSettlement.Town.TradeBoundVillages)
+            {
+                //LTLogger.IM(village.Name.ToString());
+                locations = locations + village.Name.ToString() + ", ";
+                villages++;
+            }
+
+            if (villages > 1)
+            {
+                // change last ',' to 'and'
+                int lastIndex = locations.LastIndexOf(',');
+                locations = locations.Substring(0, lastIndex) + " and" + locations.Substring(lastIndex + 1);
+            }
+
+            int feePercent = GetFeePercent(notable);
+
+            if (notable.IsArtisan || notable.IsMerchant)
+            {
+                MBTextManager.SetTextVariable("HIRE_RESPONSE", "I think ... I can do that. For an additional " + feePercent.ToString() + "% fee of course. I have connections in " + locations + town.Name.ToString(), false);
+            } else
+            {
+                MBTextManager.SetTextVariable("HIRE_RESPONSE", "DO I LOOK LIKE ... actually... I can hir... Yes! Sure! We can have a deal. My fee is .... mmm ... " + feePercent.ToString() + "%. I can organize trade in " + locations + town.Name.ToString(), false);
+            }
 
             return true;
         }
+
 
         private void FormatTradeSettlementsTextVariables()
         {
@@ -300,7 +382,7 @@ namespace LT_TradeAgent
             {
                 // change last ',' to 'and'
                 int lastIndex = locations.LastIndexOf(',');
-                locations = locations.Substring(0, lastIndex) + " and " + locations.Substring(lastIndex + 1);
+                locations = locations.Substring(0, lastIndex) + " and" + locations.Substring(lastIndex + 1);
             }
 
             MBTextManager.SetTextVariable("TRADE_SETTLEMENTS", locations, false);
@@ -468,6 +550,12 @@ namespace LT_TradeAgent
             tradeData.Balance = 10000;
             GiveGoldAction.ApplyBetweenCharacters(null, Hero.MainHero, -10000, false);
 
+            tradeData.FeePercent = GetFeePercent(notable);
+
+            ChangeRelationAction.ApplyRelationChangeBetweenHeroes(Hero.MainHero, notable, 2, false);
+
+            tradeData.LastTradeExperienceGainFromInteraction = CampaignTime.Now;
+
             SelectTradeWares(true);
 
         }
@@ -486,9 +574,10 @@ namespace LT_TradeAgent
 
             TransferWares();
 
+            ChangeRelationAction.ApplyRelationChangeBetweenHeroes(Hero.MainHero, notable, -10, true);
+
             // clean ware data
             tradeData.TradeItemsDataList.Clear();
-            tradeData = null;
             TradeAgentsData.Remove(notable);
 
             //if (!TradeAgentsData.ContainsKey(notable))
@@ -496,7 +585,7 @@ namespace LT_TradeAgent
             //    LTLogger.IMRed("Entry notable was successfully removed.");
             //}
 
-            LTLogger.IMBlue("Trade Agent contract with " + notable.Name.ToString() + " in " + notable.CurrentSettlement.Name.ToString() + " terminated.");
+            LTLogger.IMTAGreen("Trade Agent contract with " + notable.Name.ToString() + " in " + notable.CurrentSettlement.Name.ToString() + " terminated.");
         }
 
         private void TransferWares()
@@ -526,8 +615,10 @@ namespace LT_TradeAgent
             FormatTextVariables();
         }
 
-        private void IncreaseBalance(int amount)
+        private void ChangeBalance(int amount)
         {
+            if (amount == 0) return;
+            
             CharacterObject co = CharacterObject.OneToOneConversationCharacter;
             if (co == null || co.HeroObject == null) return;
             Hero notable = co.HeroObject;
@@ -542,6 +633,17 @@ namespace LT_TradeAgent
 
             MBTextManager.SetTextVariable("BALANCE", tradeData.Balance.ToString(), false);
             MBTextManager.SetTextVariable("BALANCE_INCREASE", amount.ToString(), false);
+
+            if (amount == -100000)
+            {
+                // -4 / -100k
+                ChangeRelationAction.ApplyRelationChangeBetweenHeroes(Hero.MainHero, notable, -4, false);
+            } else if (amount > 0)
+            {
+                // +1 / 50k
+                int relationChange = amount / 50000;
+                if (relationChange > 0) ChangeRelationAction.ApplyRelationChangeBetweenHeroes(Hero.MainHero, notable, relationChange, false);
+            } else if (tradeData.Balance == 0) ChangeRelationAction.ApplyRelationChangeBetweenHeroes(Hero.MainHero, notable, -4, false);    // -4 for leaving balance empty
         }
 
 
@@ -795,6 +897,28 @@ namespace LT_TradeAgent
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
             tradeData.Active = !tradeData.Active;
+        }
+
+        public void TalkWithTAConsequence()
+        {
+            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            if (co == null || co.HeroObject == null) return;
+            Hero notable = co.HeroObject;
+            LTTATradeData tradeData = GetTradeAgentTradeData(notable);
+
+            if (tradeData.LastTradeExperienceGainFromInteraction.ElapsedDaysUntilNow > 1)
+            {
+                int skillValue = Hero.MainHero.GetSkillValue(DefaultSkills.Trade);
+                if (skillValue < 25) Hero.MainHero.HeroDeveloper.ChangeSkillLevel(DefaultSkills.Trade, 1, true);
+                else Hero.MainHero.HeroDeveloper?.AddSkillXp(DefaultSkills.Trade, 500, true, true);
+                tradeData.LastTradeExperienceGainFromInteraction = CampaignTime.Now;
+            }
+
+            if (tradeData.LastRelationGainFromInteraction.ElapsedDaysUntilNow > 3)
+            {
+                ChangeRelationAction.ApplyRelationChangeBetweenHeroes(Hero.MainHero, notable, 1, false);
+                tradeData.LastRelationGainFromInteraction = CampaignTime.Now;
+            }
         }
 
     }
