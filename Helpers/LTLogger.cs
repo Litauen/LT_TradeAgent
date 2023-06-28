@@ -83,6 +83,12 @@ namespace LT.Logger
             IM(message, "#85BB65FF");
         }
 
+        public static void IMTARed(string message)
+        {
+            IM(message, "#ED4337FF");
+        }
+      
+
         public static void IMRed(string message)
         {
             IM(message, "#FF0042FF");

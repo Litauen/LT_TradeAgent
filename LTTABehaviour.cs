@@ -1,11 +1,6 @@
-﻿using LT.Logger;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.GameMenus;
-using TaleWorlds.Core;
-using TaleWorlds.Diamond;
-using TaleWorlds.Library;
 
 namespace LT_TradeAgent
 {
@@ -45,7 +40,7 @@ namespace LT_TradeAgent
         private void OnSessionLaunched(CampaignGameStarter starter)
         {
             AddDialogs(starter);
-
+            AddGameMenus(starter);
         }
 
         private void HourlyTickEvent()

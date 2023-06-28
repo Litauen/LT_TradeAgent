@@ -41,13 +41,11 @@ namespace LT_TradeAgent
 
             starter.AddDialogLine("lt_trade_agent_new", "lt_trade_agent_new_nvm", "hero_main_options", "Ok then.[ib:warrior][if:convo_grave]", null, null, 100, null);
 
-            starter.AddDialogLine("lt_trade_agent_new", "lt_trade_agent_new_agreement", "lt_trade_agent_options", "Ok. I will proceed with our agreement. Anything else?", null, null, 100, null);
+            starter.AddDialogLine("lt_trade_agent_new", "lt_trade_agent_new_agreement", "lt_trade_agent_options", "Ok. Here are the keys to the rented warehouse. You will find it in the backstreets, not far from the tavern. Anything else?", null, null, 100, null);
 
             // another Trade Agent already active in the Town or wrong type notable
             starter.AddPlayerLine("lt_trade_agent_other", "hero_main_options", "lt_trade_agent_other", "Would you trade for me when I am not around?", IsNotableNotSuitable, null, 100, null, null);
-            //starter.AddDialogLine("lt_trade_agent_other", "lt_trade_agent_other", "hero_main_options", "As far as I know you already have agreement with {TA_NAME}.[ib:confident3][if:convo_mocking_revenge]", null, null, 100, null);
             starter.AddDialogLine("lt_trade_agent_other", "lt_trade_agent_other", "hero_main_options", "{REFUSE_RESPONSE}[ib:confident3][if:convo_mocking_revenge]", null, null, 100, null);
-
 
             // Trade Agent hired
             starter.AddPlayerLine("lt_trade_agent", "hero_main_options", "lt_trade_agent_intro", "About our trade agreement...", IsHeroTownsTradeAgent, TalkWithTAConsequence, 100, null, null);
@@ -56,7 +54,7 @@ namespace LT_TradeAgent
             // options
             starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_options", "lt_trade_agent_gold", "Let's talk about gold{GOLD_ICON}", null, null, 100, null, null);
             starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_options", "lt_trade_agent_amounts", "About the wares...", null, null, 100, null, null);
-            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_options", "lt_trade_agent_storage", "Show me what you bought", null, null, 100, null, null);
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_options", "lt_trade_agent_storage", "Let's inspect the warehouse", null, null, 100, null, null);
             starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_options", "lt_trade_agent_contract", "I want to talk about our contract...", null, FormatTradeSettlementsTextVariables, 100, null, null);
             starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_options", "lt_trade_agent_new_nvm", "That will be all.", null, null, 100, null, null);
 
@@ -86,20 +84,43 @@ namespace LT_TradeAgent
             starter.AddDialogLine("lt_trade_agent", "lt_trade_agent_stop4", "lt_trade_agent_options", "That's what I though.[ib:normal2][if:convo_calm_friendly]", null, null, 100, null);
 
             // storage
-            starter.AddDialogLine("lt_trade_agent", "lt_trade_agent_storage", "lt_trade_agent_storage2", "{TA_WARES_IN_STORAGE} [ib:hip]", null, FormatTextVariableStorage, 100, null);
-            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_storage2", "lt_trade_agent_storage3", "I want to take all the wares you bought", null, TransferWares, 100, (out TextObject explanation) =>
+            starter.AddDialogLine("lt_trade_agent", "lt_trade_agent_storage", "lt_trade_agent_storage2", "{WAREHOUSE_RESPONSE} [ib:hip]", null, FormatTextVariableStorage, 100, null);
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_storage2", "lt_trade_agent_storage3", "I want to take all the wares from the warehouse", BalanceNotNegative, TransferWares, 100, (out TextObject explanation) =>
             {
-                if (!TradeAgentHasWaresInStash())
+                if (!BalanceNotNegative())
                 {
-                    explanation = new TextObject("Trade Agent does not have any wares");
+                    explanation = new TextObject("Negative balance. Cover your debt before accessing the warehouse.");
                     return false;
                 }
                 else
                 {
-                    explanation = new TextObject("Wares will be transferred to your party's inventory");
+                    if (!TradeAgentHasWaresInStash())
+                    {
+                        explanation = new TextObject("Trade Agent does not have any wares");
+                        return false;
+                    }
+                    else
+                    {
+                        explanation = new TextObject("Wares will be transferred to your party's inventory");
+                        return true;
+                    }
+                }
+            }
+            );
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_storage2", "lt_trade_agent_intro", "I will visit the warehouse myself", null, WarehouseScreenFromDialog, 100, (out TextObject explanation) =>
+            {
+                if (!BalanceNotNegative())
+                {
+                    explanation = new TextObject("Negative balance. Cover your debt before accessing the warehouse.");
+                    return false;
+                }
+                else
+                {
+                    explanation = new TextObject("");
                     return true;
                 }
             }
+
             );
             starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_storage2", "lt_trade_agent_intro", "Ok, another thing...", null, null, 100, null, null);
             starter.AddDialogLine("lt_trade_agent", "lt_trade_agent_storage3", "lt_trade_agent_intro", "Here you go...", null, null, 100, null);
@@ -242,6 +263,8 @@ namespace LT_TradeAgent
             starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_amounts2", "lt_trade_agent_amounts3", "Let me remove some wares from the list", null, () => SelectTradeWares(false), 100, null, null);
             starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_amounts2", "lt_trade_agent_amounts3", "I want to change buy prices", null, () => ChangePrices(true), 100, null, null);
             starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_amounts2", "lt_trade_agent_amounts3", "I want to change sell prices", null, () => ChangePrices(false), 100, null, null);
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_amounts2", "lt_trade_agent_amounts3", "Do not buy more than...", null, () => ChangeAmounts(true), 100, null, null);
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_amounts2", "lt_trade_agent_amounts3", "When selling leave at least...", null, () => ChangeAmounts(false), 100, null, null);
             starter.AddDialogLine("lt_trade_agent", "lt_trade_agent_amounts3", "lt_trade_agent_amounts", "Noted.", FormatTextVariables, null, 100, null);
 
             starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_amounts2", "lt_trade_agent_amounts4", "Great, continue as it is.", null, null, 100, null, null);
@@ -273,8 +296,8 @@ namespace LT_TradeAgent
             if (tradeAgent == notable) return false;  // TA is himself or not found in town
 
             // TA already present
-            if (tradeAgent != null) 
-            { 
+            if (tradeAgent != null)
+            {
                 MBTextManager.SetTextVariable("REFUSE_RESPONSE", "As far as I know you already have agreement with " + tradeAgent.Name.ToString(), false);
                 return true;
             }
@@ -308,8 +331,8 @@ namespace LT_TradeAgent
 
 
         private bool IsHeroPotentialTradeAgent()
-        {          
-          
+        {
+
             if (!IsHeroTownNotable()) return false;
 
             Settlement town = Hero.MainHero.CurrentSettlement;
@@ -326,7 +349,7 @@ namespace LT_TradeAgent
 
             //LTLogger.IMTAGreen("IsHeroPotentialTradeAgent");
             //FormatTradeSettlementsTextVariables();
-            
+
             // relation check
             int relation = CharacterRelationManager.GetHeroRelation(Hero.MainHero, notable);
             int necessaryRelation = GetNecessaryRelationForHire(notable);
@@ -472,7 +495,7 @@ namespace LT_TradeAgent
                         // count items
                         int itemCount = tradeData.Stash.GetItemNumber(ware.item);
 
-                        taWaresWithAmounts += ware.item.Name.ToString() + " (" + itemCount.ToString() + "/" + GetNicePriceString(ware.minPrice, false) + "/" + GetNicePriceString(ware.maxPrice, true) + "), ";
+                        taWaresWithAmounts += ware.item.Name.ToString() + " (" + itemCount.ToString() + " " + GetNicePriceString(ware.minPrice, false) + "/" + GetNiceAmountString(ware.minItemAmount, false) + " " + GetNicePriceString(ware.maxPrice, true) + "/" + GetNiceAmountString(ware.maxItemAmount, true) + "), ";
                         i++;
                     }
                 }
@@ -480,7 +503,7 @@ namespace LT_TradeAgent
                 taWaresWithAmounts = taWaresWithAmounts.Substring(0, taWaresWithAmounts.Length - 2);
 
                 MBTextManager.SetTextVariable("TA_WARES", "As agreed I will trade for you " + taWares + ". My fee is " + tradeData.FeePercent + "%.", false);
-                MBTextManager.SetTextVariable("TA_WARES_WITH_AMOUNTS", "Wares in the list (in the storage/min sell price/max buy price): " + taWaresWithAmounts, false);
+                MBTextManager.SetTextVariable("TA_WARES_WITH_AMOUNTS", "Wares in the list (in the warehouse, min sell price/min leave amount, max buy price/max buy amount): " + taWaresWithAmounts, false);
 
             }
             else
@@ -498,7 +521,7 @@ namespace LT_TradeAgent
             else MBTextManager.SetTextVariable("ACTIVE_STATUS_INFO", "Currently I will not do any trades as you asked.", false);
 
 
-            
+
 
             return true;
         }
@@ -515,6 +538,12 @@ namespace LT_TradeAgent
 
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
+            if (!BalanceNotNegative())
+            {
+                MBTextManager.SetTextVariable("WAREHOUSE_RESPONSE", "There is a small issue we need to resolve before you will be allowed to the warehouse. There is a debt of " + (tradeData.Balance * (-1)).ToString() + "{GOLD_ICON}...", false);
+                return;
+            }
+
             if (tradeData.Stash.Count > 0)
             {
                 for (int i = 0; i < tradeData.Stash.Count; i++)
@@ -525,12 +554,12 @@ namespace LT_TradeAgent
                 }
                 taWaresWithAmounts = taWaresWithAmounts.Substring(0, taWaresWithAmounts.Length - 2);
 
-                MBTextManager.SetTextVariable("TA_WARES_IN_STORAGE", "I have such wares in my storage currently: " + taWaresWithAmounts, false);
+                MBTextManager.SetTextVariable("WAREHOUSE_RESPONSE", "I have such wares in the warehouse currently: " + taWaresWithAmounts, false);
             }
 
             else
             {
-                MBTextManager.SetTextVariable("TA_WARES_IN_STORAGE", "I don't have any wares currently.", false);
+                MBTextManager.SetTextVariable("WAREHOUSE_RESPONSE", "I don't have any wares currently.", false);
             }
 
             //MBTextManager.SetTextVariable("BALANCE", tradeData.Balance.ToString(), false);
@@ -585,7 +614,7 @@ namespace LT_TradeAgent
             //    LTLogger.IMRed("Entry notable was successfully removed.");
             //}
 
-            LTLogger.IMTAGreen("Trade Agent contract with " + notable.Name.ToString() + " in " + notable.CurrentSettlement.Name.ToString() + " terminated.");
+            LTLogger.IMTARed("Trade Agent contract with " + notable.Name.ToString() + " in " + notable.CurrentSettlement.Name.ToString() + " terminated.");
         }
 
         private void TransferWares()
@@ -618,7 +647,7 @@ namespace LT_TradeAgent
         private void ChangeBalance(int amount)
         {
             if (amount == 0) return;
-            
+
             CharacterObject co = CharacterObject.OneToOneConversationCharacter;
             if (co == null || co.HeroObject == null) return;
             Hero notable = co.HeroObject;
@@ -919,6 +948,129 @@ namespace LT_TradeAgent
                 ChangeRelationAction.ApplyRelationChangeBetweenHeroes(Hero.MainHero, notable, 1, false);
                 tradeData.LastRelationGainFromInteraction = CampaignTime.Now;
             }
+        }
+
+        public bool BalanceNotNegative()
+        {
+            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            if (co == null || co.HeroObject == null) return false;
+            Hero notable = co.HeroObject;
+
+            LTTATradeData tradeData = GetTradeAgentTradeData(notable);
+
+            return tradeData.Balance >= 0;
+        }
+
+
+
+
+        private void ChangeAmounts(bool toBuy = true)
+        {
+
+            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            if (co == null || co.HeroObject == null) return;
+            Hero notable = co.HeroObject;
+
+            LTTATradeData tradeData = GetTradeAgentTradeData(notable);
+
+            List<InquiryElement> list = FormatTradeWaresInquiryListForAmountChange(toBuy, true);
+
+            string titleText = "";
+            if (toBuy) titleText = new TextObject("Select the quantity limit for the maximum number of items to purchase").ToString();
+            else titleText = new TextObject("Select the item to set a minimum quantity to keep when selling").ToString();
+
+            MultiSelectionInquiryData data = new(titleText, "", list, true, 1,
+                new TextObject("Select").ToString(), new TextObject("Leave").ToString(),
+                    (List<InquiryElement> list) => {
+
+                        // what we will do with selected item?
+                        foreach (InquiryElement inquiryElement in list)
+                        {
+                            if (inquiryElement != null && inquiryElement.Identifier != null)
+                            {
+                                ItemObject? item = inquiryElement.Identifier as ItemObject;
+                                if (item != null)
+                                {
+                                    if (toBuy)
+                                    {
+                                        string title = "Enter new maximum number of items to purchase for " + item.Name;
+                                        string text = "The Trade Agent will buy this ware until the set maximum limit and then will stop.\n\nCurrent max buy amount: " + GetNiceAmountString(tradeData.GetWareAmount(item)) + "\n\nEnter -1 for unlimited (∞) - to buy without the limit.\nEnter 0 - to not buy.";
+                                        string inputText = "";
+
+                                        InformationManager.ShowTextInquiry(new TextInquiryData(title, text, true, true, "Confirm", "Cancel",
+                                            delegate (string newPrice)
+                                            {
+                                                int input;
+                                                if (int.TryParse(newPrice, out input))
+                                                {
+                                                    tradeData.ChangeWareAmount(item, input);
+                                                    LTLogger.IMGrey(item.Name.ToString() + " max buy amount changed to " + GetNiceAmountString(input));
+                                                }
+
+                                            }
+                                            , null, false, null, "", inputText), false, false);
+                                    }
+                                    else
+                                    {
+                                        string title = "Enter new mininum number of items to keep when selling for " + item.Name;
+                                        string text = "The Trade Agent will leave this amount of items in the warehouse when selling.\n\nCurrent min sell amount: " + GetNiceAmountString(tradeData.GetWareAmount(item, false)) + "\n\nEnter 0 - to sell everything.";
+                                        string inputText = "";
+
+                                        InformationManager.ShowTextInquiry(new TextInquiryData(title, text, true, true, "Confirm", "Cancel",
+                                            delegate (string newPrice)
+                                            {
+                                                int input;
+                                                if (int.TryParse(newPrice, out input))
+                                                {
+                                                    if (input == -1) input = 0;
+                                                    tradeData.ChangeWareAmount(item, input, false);
+                                                    LTLogger.IMGrey(item.Name.ToString() + " min amount to keep when selling changed to " + GetNiceAmountString(input));
+                                                }
+
+                                            }
+                                            , null, false, null, "", inputText), false, false);
+                                    }
+                                }
+                            }
+                        }
+
+                    }, (List<InquiryElement> list) => { }, "");
+            MBInformationManager.ShowMultiSelectionInquiry(data);
+        }
+
+        public string GetNiceAmountString(int amount, bool buy = true)
+        {
+            string amountString = amount.ToString();
+            if (buy && amount == -1) amountString = "∞";
+            //if (!buy && amount == 0) amountString = "-";
+            return amountString;
+        }
+
+        private List<InquiryElement> FormatTradeWaresInquiryListForAmountChange(bool toBuy = true, bool showAmount = true)
+        {
+            List<InquiryElement> list = new();
+
+            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            if (co == null || co.HeroObject == null) return list;
+            Hero notable = co.HeroObject;
+
+            LTTATradeData tradeData = GetTradeAgentTradeData(notable);
+
+            string showAmountString = "";
+
+            foreach (TradeItemData ware in tradeData.TradeItemsDataList)
+            {
+                if (ware.item == null) continue;
+
+                if (showAmount)
+                {
+                    if (toBuy) showAmountString = " [" + GetNiceAmountString(ware.maxItemAmount) + "]"; else showAmountString = " [" + GetNiceAmountString(ware.minItemAmount) + "]";
+                }
+
+                list.Add(new InquiryElement(ware.item, ware.item.Name.ToString() + showAmountString, new ImageIdentifier(ware.item)));
+            }
+
+            return list;
         }
 
     }

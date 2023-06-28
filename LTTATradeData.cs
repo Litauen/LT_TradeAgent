@@ -30,6 +30,9 @@ namespace LT_TradeAgent
         [SaveableField(7)]
         public int boughTotal;     // how many items bought from the start of the contract
 
+        [SaveableField(8)]
+        public int minItemAmount;
+
         public TradeItemData(ItemObject item) 
         { 
             this.item = item;
@@ -39,6 +42,7 @@ namespace LT_TradeAgent
             this.maxGoldAmount = -1;     // unlimited
             this.spentTotal = 0;
             this.boughTotal= 0;
+            this.minItemAmount = 0;
         }
 
     }
@@ -74,6 +78,9 @@ namespace LT_TradeAgent
         [SaveableField(9)]
         public CampaignTime LastRelationGainFromInteraction;
 
+        [SaveableField(10)]
+        public bool NotificationForLowBalanceSent;
+
         public LTTATradeData(Hero hero)
         {
             this.Hero = hero;
@@ -85,6 +92,8 @@ namespace LT_TradeAgent
 
             this.FeePercent = 10; 
             this.SendsTradeInfo = false;
+
+            this.NotificationForLowBalanceSent = false;
 
         }
 
@@ -159,6 +168,41 @@ namespace LT_TradeAgent
             }
             return -1;
         }
+
+        public int GetWareAmount(ItemObject item, bool maxAmount = true)
+        {
+            if (item == null) return 0;
+            if (this.TradeItemsDataList.Count == 0) return 0;
+
+            foreach (TradeItemData ware in this.TradeItemsDataList)
+            {
+                if (item == ware.item)
+                {
+                    if (maxAmount) return ware.maxItemAmount;
+                    else return ware.minItemAmount;
+                }
+            }
+            return -1;
+        }
+
+        public bool ChangeWareAmount(ItemObject item, int newAmount, bool maxAmount = true)
+        {
+            if (item == null) return false;
+            if (maxAmount && newAmount < -1) newAmount = -1; // unlimited
+            if (!maxAmount && newAmount < 0) newAmount = 0;
+            if (this.TradeItemsDataList.Count == 0) return false;
+
+            foreach (TradeItemData ware in this.TradeItemsDataList)
+            {
+                if (item == ware.item)
+                {
+                    if (maxAmount) ware.maxItemAmount = newAmount; else ware.minItemAmount = newAmount;
+                    return true;
+                }
+            }
+            return false;
+        }
+
 
     }
 

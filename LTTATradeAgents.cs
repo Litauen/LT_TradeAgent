@@ -4,6 +4,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using LT.Logger;
 using TaleWorlds.Core;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.Localization;
 
 namespace LT_TradeAgent
 {
@@ -167,26 +168,49 @@ namespace LT_TradeAgent
                     if (ware.item.Value < 20) batchSize = 50;
                     else if (ware.item.Value < 40) batchSize = 10;
 
+                    // control by min amount to leave
+                    int itemCount = tradeData.Stash.GetItemNumber(ware.item);
+                    if (itemCount - batchSize < ware.minItemAmount) batchSize = itemCount - ware.minItemAmount;
+                    if (batchSize < 1)
+                    {
+                        if (showLog) LTLogger.IMGrey("  " + ware.item.Name.ToString() + " min amount to not sell " + ware.minItemAmount.ToString() + " reached. Will not sell more.");
+                        continue;
+                    }
 
                     // repeat until no settlement wants to buy or everything is sold
+                    int iter = 0;
                     for (; ; )
                     {
 
-                        // check amount
-                        int itemCount = tradeData.Stash.GetItemNumber(ware.item);
-                        if (itemCount == 0)
+                        // just in case
+                        iter++;
+                        if (iter > 2000)
                         {
-                            if (showLog) LTLogger.IMGrey("  " + ware.item.Name.ToString() + " 0 in storage, skipping");
-                            //continue;
+                            LTLogger.IMRed("Trade Agent mod error in SellTAItems 'for' cycle. Report to the mod developer.");
                             break;
                         }
+
+                        // check amount
+                        itemCount = tradeData.Stash.GetItemNumber(ware.item);
+
+                        if (itemCount == 0)
+                        {
+                            if (showLog) LTLogger.IMGrey("  " + ware.item.Name.ToString() + " 0 in the warehouse. Nothing to sell.");
+                            break;
+                        }
+                        
                         // control batchSize based on available item count
                         if (batchSize > itemCount) batchSize = itemCount;
 
+                        // control by min amount to leave
+                        if (itemCount - batchSize < ware.minItemAmount) batchSize = itemCount - ware.minItemAmount;
+                        if (batchSize < 1)
+                        {
+                            if (showLog) LTLogger.IMGrey("  " + ware.item.Name.ToString() + " min amount to not sell " + ware.minItemAmount.ToString() + " reached. Will not sell more.");
+                            break;
+                        }
 
                         if (showLog) LTLogger.IMGrey(itemCount.ToString() + " x " + ware.item.Name.ToString() + ", will try to sell x" + batchSize.ToString() + " if price > " + ware.minPrice.ToString());
-
-
 
                         // find the settlement where we can sell our batch with the highest price
                         Settlement? bestSettlement = null;
@@ -298,6 +322,15 @@ namespace LT_TradeAgent
                             continue;
                         }
 
+                        // control by max buy amount
+                        int itemCountInWarehouse = tradeData.Stash.GetItemNumber(ware.item);
+                        if (ware.maxItemAmount != -1 && itemCountInWarehouse + itemCount > ware.maxItemAmount) itemCount = ware.maxItemAmount - itemCountInWarehouse;
+                        if (itemCount < 1)
+                        {
+                            if (showLog) LTLogger.IMGrey(ware.item.Name + " max buy limit amount " + ware.maxItemAmount.ToString() + " reached. Will not buy more.");
+                            continue;
+                        }
+
                         float itemPrice = GetItemPriceFromSettlement(settlement, ware.item, false, tradeData.FeePercent);
 
                         if (ware.maxPrice != -1 && itemPrice > ware.maxPrice)
@@ -347,25 +380,6 @@ namespace LT_TradeAgent
         }
 
 
-
-
-        private void ProcessTradeAgents()
-        {
-
-            int totalAgents = TradeAgentsData.Count;
-            if (totalAgents == 0) return;
-
-            int totalSold = SellTAItems();
-            int totalBought = BuyTAItems();
-
-            // status report
-            string ta = "Trade Agent";  if (totalAgents > 1) ta = "Trade Agents";
-            string statusReport = totalAgents.ToString() + " " + ta + " sold " + totalSold.ToString() + " and bought " + totalBought.ToString() + " wares.";
-            LTLogger.IMTAGreen(statusReport);
-
-        }
-
-
         // fee percent notable charges for his services
         int GetFeePercent(Hero hero)
         {
@@ -403,6 +417,72 @@ namespace LT_TradeAgent
         {
             if (TradeAgentsData.Count < GetTALimit()) return true;
             return false;
+        }
+
+        public void ProcessTABalances()
+        {
+            foreach (KeyValuePair<Hero, LTTATradeData> td in TradeAgentsData)
+            {
+                Hero hero = td.Key;
+                if (hero.CharacterObject == null) continue;
+                LTTATradeData tradeData = td.Value;
+
+                if (tradeData.Balance < 0 && tradeData.NotificationForLowBalanceSent) continue;
+
+                if (tradeData.Balance >= 0)
+                {
+                    tradeData.NotificationForLowBalanceSent = false;
+                    continue;
+                }
+
+                if (hero.CurrentSettlement == null) continue;
+                Town town = hero.CurrentSettlement.Town;
+
+                TextObject msg = new("Trade Agent's " + hero.Name.ToString() + "'s (" + town.Name.ToString() + ") balance is low");
+                MBInformationManager.AddQuickInformation(msg, 3000, hero.CharacterObject, "event:/ui/notification/settlement_owner_change");
+
+                tradeData.NotificationForLowBalanceSent = true;
+
+                LTLogger.IMTARed(msg.ToString());
+
+            }
+        }
+
+
+        private int GetTotalActiveTradeAgents()
+        {
+            int total = 0;
+            foreach (KeyValuePair<Hero, LTTATradeData> td in TradeAgentsData)
+            {
+                Hero hero = td.Key;
+                if (hero.CharacterObject == null) continue;
+                LTTATradeData tradeData = td.Value;
+
+                if (tradeData.Active) total++;
+            }
+            return total;
+        }
+
+
+
+        private void ProcessTradeAgents()
+        {
+
+            int totalAgents = GetTotalActiveTradeAgents();
+            if (totalAgents == 0) return;
+
+            int totalSold = SellTAItems();
+            int totalBought = BuyTAItems();
+
+            ChargeForWaresInRentedWarehouses();
+
+            ProcessTABalances();
+
+            // status report
+            string ta = "Trade Agent"; if (totalAgents > 1) ta = "Trade Agents";
+            string statusReport = totalAgents.ToString() + " " + ta + " sold " + totalSold.ToString() + " and bought " + totalBought.ToString() + " wares.";
+            LTLogger.IMTAGreen(statusReport);
+
         }
     }
 }
