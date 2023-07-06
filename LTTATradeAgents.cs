@@ -10,7 +10,7 @@ namespace LT_TradeAgent
 {
     public partial class LTTABehaviour : CampaignBehaviorBase
     {
-        private LTTATradeData GetTradeAgentTradeData(Hero hero)
+        public LTTATradeData GetTradeAgentTradeData(Hero hero)
         {
             LTTATradeData tradeData;
             LTTATradeData result;
@@ -484,5 +484,40 @@ namespace LT_TradeAgent
             LTLogger.IMTAGreen(statusReport);
 
         }
+
+        // clean TA from old versions due to error in assignment
+        private void CleanBrokenTradeAgents()
+        {
+
+            List<Hero> keysToDelete = new();
+
+            foreach (KeyValuePair<Hero, LTTATradeData> td in TradeAgentsData)
+            {
+                Hero hero = td.Key;
+                LTTATradeData tradeData = td.Value;
+
+                if (hero.CurrentSettlement == null || tradeData == null)
+                {
+                    keysToDelete.Add(hero);
+                    continue;
+                }
+
+                if (!tradeData.Active && tradeData.Balance == 0 && tradeData.GetTotalWaresCountInStash() == 0)
+                {
+                    keysToDelete.Add(hero);
+                    continue;
+                }
+            }
+
+            foreach (var key in keysToDelete)
+            {
+                //LTLogger.IMRed("Deleting broken TA: " + key.Name.ToString());
+                TradeAgentsData.Remove(key);
+            }
+
+
+        }
+
+
     }
 }

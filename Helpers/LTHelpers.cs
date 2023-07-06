@@ -32,6 +32,15 @@ namespace LT.Helpers
         }
 
 
+        public static bool RandomBool()
+        {
+            return new Random().NextDouble() < 0.5;
+        }
+
+        public static int Random100()
+        {
+            return new Random().Next(100);
+        }
 
         public static List<Hero> GetPartyCompanionsList()
         {

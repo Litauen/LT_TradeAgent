@@ -81,6 +81,10 @@ namespace LT_TradeAgent
         [SaveableField(10)]
         public bool NotificationForLowBalanceSent;
 
+        //total_debit/withdrawal?
+        //total_credit
+        // debit-credit-balance
+
         public LTTATradeData(Hero hero)
         {
             this.Hero = hero;

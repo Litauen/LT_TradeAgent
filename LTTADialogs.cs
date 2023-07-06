@@ -72,9 +72,10 @@ namespace LT_TradeAgent
             starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_contract2", "lt_trade_agent_stop", "I want to end our agreement...", null, null, 100, null, null);
             starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_contract2", "lt_trade_agent_intro", "That will be all.", null, null, 100, null, null);
 
+            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_fee2", "lt_trade_agent_contract", "Ok then...", null, null, 100, null, null);
+
             // fee
-            starter.AddDialogLine("lt_trade_agent", "lt_trade_agent_fee", "lt_trade_agent_fee2", "Lower my fee, you say? Ah, I see you have a keen eye for fine and exquisite service. Alas, my fee is as sturdy as a castle wall, fortified with quality and exclusivity. Perhaps, you'd prefer a journey to the mystical realm of \"Wishful Thinking\" for more affordable deals? [ib:nervous2][if: convo_insulted]", null, null, 100, null);
-            starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_fee2", "lt_trade_agent_intro", "Ok then...", null, null, 100, null, null);
+            starter.AddDialogLine("lt_trade_agent", "lt_trade_agent_fee", "lt_trade_agent_fee_persuade", "Lower my fee, you say? Ah, I see you have a keen eye for fine and exquisite service. Alas, my fee is as sturdy as a castle wall, fortified with quality and exclusivity. Perhaps, you'd prefer a journey to the mystical realm of \"Wishful Thinking\" for more affordable deals? [ib:nervous2][if: convo_insulted]", null, null, 100, null);
 
             // stop the contract
             starter.AddDialogLine("lt_trade_agent", "lt_trade_agent_stop", "lt_trade_agent_stop2", "Pitty, that was a good contract. Let me transfer remaining balance and all the wares to you now...[ib:nervous][if:convo_shocked]", null, null, 100, null);
@@ -249,8 +250,7 @@ namespace LT_TradeAgent
                     return true;
                 }
             }
-            );
-            //starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold_back2", "lt_trade_agent_gold", "I will take all the gold {BALANCE}{GOLD_ICON}", null, () => IncreaseBalance(GetTradeAgentGold(CharacterObject.OneToOneConversationCharacter.HeroObject) * (-1)), 100, null, null);
+            );           
             starter.AddPlayerLine("lt_trade_agent", "lt_trade_agent_gold_back2", "lt_trade_agent_gold", "Nevermind", null, null, 100, null, null);
 
 
@@ -281,9 +281,11 @@ namespace LT_TradeAgent
             Settlement town = Hero.MainHero.CurrentSettlement;
             if (town == null || town.IsTown == false || town.Notables == null) return false;
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return false;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return false;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             // wrong type of notable
             if (!(notable.IsArtisan || notable.IsMerchant || notable.IsGangLeader))
@@ -341,9 +343,11 @@ namespace LT_TradeAgent
             // does this town already has Trade Agent?
             if (GetSettlementsTradeAgent(town) != null) return false;
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return false;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return false;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             if (!(notable.IsArtisan || notable.IsMerchant || notable.IsGangLeader)) return false;
 
@@ -414,9 +418,10 @@ namespace LT_TradeAgent
 
             //LTLogger.IMTAGreen("FormatTradeSettlementsTextVariables");
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return;
+            //Hero notable = co.HeroObject;
+            Hero notable = Hero.OneToOneConversationHero;
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
             MBTextManager.SetTextVariable("COMMISSION_PERC", tradeData.FeePercent.ToString(), false);
         }
@@ -427,10 +432,11 @@ namespace LT_TradeAgent
             Settlement town = Hero.MainHero.CurrentSettlement;
             if (town == null || town.IsTown == false || town.Notables == null) return false;
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return false;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return false;
+            //Hero notable = co.HeroObject;
 
-            Hero notable = co.HeroObject;
+            Hero notable = Hero.OneToOneConversationHero;
 
             if (town.Notables.Contains(notable)) return true;
 
@@ -443,10 +449,11 @@ namespace LT_TradeAgent
             Settlement town = Hero.MainHero.CurrentSettlement;
             if (town == null || town.IsTown == false || town.Notables == null) return false;
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return false;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return false;
+            //Hero notable = co.HeroObject;
 
-            Hero notable = co.HeroObject;
+            Hero notable = Hero.OneToOneConversationHero;
 
             //LTLogger.IMTAGreen("IsHeroTownsTradeAgent");
 
@@ -472,10 +479,11 @@ namespace LT_TradeAgent
         private bool FormatTextVariables()
         {
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return true;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return true;
+            //Hero notable = co.HeroObject;
 
-            Hero notable = co.HeroObject;
+            Hero notable = Hero.OneToOneConversationHero;
 
             string taWares = "";
             string taWaresWithAmounts = "";
@@ -529,10 +537,11 @@ namespace LT_TradeAgent
         private void FormatTextVariableStorage()
         {
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return;
+            //Hero notable = co.HeroObject;
 
-            Hero notable = co.HeroObject;
+            Hero notable = Hero.OneToOneConversationHero;
 
             string taWaresWithAmounts = "";
 
@@ -567,9 +576,11 @@ namespace LT_TradeAgent
 
         private void SetNewTradeAgent()
         {
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTLogger.IMTAGreen(notable.Name.ToString() + " hired as new Trade Agent in " + notable.CurrentSettlement.Name.ToString());
 
@@ -591,9 +602,11 @@ namespace LT_TradeAgent
 
         private void EndContract()
         {
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTTATradeData? tradeData = GetTradeAgentTradeData(notable);
             tradeData.Active = false;
@@ -648,9 +661,11 @@ namespace LT_TradeAgent
         {
             if (amount == 0) return;
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
@@ -694,9 +709,12 @@ namespace LT_TradeAgent
         {
             List<InquiryElement> list = new();
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return list;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return list;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
+
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
             var orderedItems = Items.All
@@ -726,9 +744,11 @@ namespace LT_TradeAgent
         private void SelectTradeWares(bool toBuy = true)
         {
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
@@ -775,9 +795,11 @@ namespace LT_TradeAgent
         {
             List<InquiryElement> list = new();
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return list;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return list;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
@@ -803,9 +825,11 @@ namespace LT_TradeAgent
         private void ChangePrices(bool toBuy = true)
         {
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
@@ -885,9 +909,11 @@ namespace LT_TradeAgent
 
         public bool IsStatusReportEnabled()
         {
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return false;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return false;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
@@ -896,9 +922,11 @@ namespace LT_TradeAgent
 
         public void ChangeStatusReport()
         {
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
@@ -908,9 +936,11 @@ namespace LT_TradeAgent
 
         public bool IsTAActive()
         {
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return false;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return false;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
@@ -919,9 +949,11 @@ namespace LT_TradeAgent
 
         public void ChangeTAActiveStatus()
         {
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
@@ -930,9 +962,12 @@ namespace LT_TradeAgent
 
         public void TalkWithTAConsequence()
         {
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
+
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
             if (tradeData.LastTradeExperienceGainFromInteraction.ElapsedDaysUntilNow > 1)
@@ -952,9 +987,11 @@ namespace LT_TradeAgent
 
         public bool BalanceNotNegative()
         {
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return false;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return false;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
@@ -967,9 +1004,11 @@ namespace LT_TradeAgent
         private void ChangeAmounts(bool toBuy = true)
         {
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 
@@ -1050,9 +1089,11 @@ namespace LT_TradeAgent
         {
             List<InquiryElement> list = new();
 
-            CharacterObject co = CharacterObject.OneToOneConversationCharacter;
-            if (co == null || co.HeroObject == null) return list;
-            Hero notable = co.HeroObject;
+            //CharacterObject co = CharacterObject.OneToOneConversationCharacter;
+            //if (co == null || co.HeroObject == null) return list;
+            //Hero notable = co.HeroObject;
+
+            Hero notable = Hero.OneToOneConversationHero;
 
             LTTATradeData tradeData = GetTradeAgentTradeData(notable);
 

@@ -20,7 +20,9 @@ namespace LT_TradeAgent
                 if (game.GameType is not Campaign) return;
 
                 ((CampaignGameStarter)gameStarterObject).AddBehavior((CampaignBehaviorBase)new LTTABehaviour());
+                ((CampaignGameStarter)gameStarterObject).AddBehavior((CampaignBehaviorBase)new LTTABarterBehaviour());
 
+                //LTTABehaviour.TradeAgentsData.Clear();
             }
             catch (Exception ex)
             {
