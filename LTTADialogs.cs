@@ -758,7 +758,7 @@ namespace LT_TradeAgent
             if (toBuy) titleText = new TextObject("Select trade wares you want your Trade Agent to trade").ToString();
             else titleText = new TextObject("Select trade wares you don't want your Trade Agent to trade anymore").ToString();
 
-            MultiSelectionInquiryData data = new(titleText, "", list, true, 1000,
+            MultiSelectionInquiryData data = new(titleText, "", list, true, 0, 1000,
                 new TextObject("Select").ToString(), new TextObject("Leave").ToString(),
                     (List<InquiryElement> list) => {
 
@@ -839,7 +839,7 @@ namespace LT_TradeAgent
             if (toBuy) titleText = new TextObject("Select the ware to change max buy price").ToString();
             else titleText = new TextObject("Select the ware to change min sell price").ToString();
 
-            MultiSelectionInquiryData data = new(titleText, "", list, true, 1,
+            MultiSelectionInquiryData data = new(titleText, "", list, true, 0, 1,
                 new TextObject("Select").ToString(), new TextObject("Leave").ToString(),
                     (List<InquiryElement> list) => {
 
@@ -1018,7 +1018,7 @@ namespace LT_TradeAgent
             if (toBuy) titleText = new TextObject("Select the quantity limit for the maximum number of items to purchase").ToString();
             else titleText = new TextObject("Select the item to set a minimum quantity to keep when selling").ToString();
 
-            MultiSelectionInquiryData data = new(titleText, "", list, true, 1,
+            MultiSelectionInquiryData data = new(titleText, "", list, true, 0, 1,
                 new TextObject("Select").ToString(), new TextObject("Leave").ToString(),
                     (List<InquiryElement> list) => {
 
